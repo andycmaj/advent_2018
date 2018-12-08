@@ -7,15 +7,11 @@ object Control {
             resource.close()
         }
 
-    def readTextFile(filename: String): Option[List[String]] = {
-        try {
-            val lines = using(io.Source.fromFile(filename)) { source =>
-                (for (line <- source.getLines) yield line).toList
-            }
-            Some(lines)
-        } catch {
-            case e: Exception => None
+    def readTextFile(filename: String): List[String] = {
+        val lines = using(io.Source.fromFile(filename)) { source =>
+            (for (line <- source.getLines) yield line).toList
         }
+        lines
     }
 }
 
@@ -25,21 +21,25 @@ object Scanner {
         val groupSizes = groups.values.map(_.size);
         val twoAndThreeCounts = groupSizes.foldLeft((0, 0)){
             (counts, group) => group match {
-                case 2 => (counts._1+1, counts._2)
-                case 3 => (counts._1, counts._2+1)
+                case 2 => (1, counts._2)
+                case 3 => (counts._1, 1)
                 case _ => counts
             }
         }
 
+        println(id)
+        println(twoAndThreeCounts)
         twoAndThreeCounts
     }
 }
 
-import Control._
-
 object Main extends App {
     val result = Control.readTextFile("input")
-    result foreach { strings =>
-        strings.foreach(Scanner.scanId)
+    val counts = result.foldLeft((0, 0)) {
+        (counts, line) => {
+            val lineCounts = Scanner.scanId(line);
+            (counts._1 + lineCounts._1, counts._2 + lineCounts._2)
+        }
     }
+    println(counts);
 }
