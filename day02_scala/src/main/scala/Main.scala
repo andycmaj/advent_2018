@@ -27,19 +27,44 @@ object Scanner {
             }
         }
 
-        println(id)
-        println(twoAndThreeCounts)
         twoAndThreeCounts
     }
 }
 
+// returns count of differing positions
+/*
+for ((x,y) <- xs zip ys) yield x*y
+same as
+(xs zip ys) map { case (x,y) => x*y }
+*/
+object Part2 {
+    def compareIds(first: String, second: String): Boolean = {
+        (first zip second).foldLeft(0) {
+            (count, pair) => pair match {
+                case p if (p._1 == p._2) => count
+                case _ => count + 1
+            }
+        } == 1
+    }
+}
+
 object Main extends App {
-    val result = Control.readTextFile("input")
-    val counts = result.foldLeft((0, 0)) {
+    // part 1
+    val part1Lines = Control.readTextFile("input_part1")
+    val counts = part1Lines.foldLeft((0, 0)) {
         (counts, line) => {
             val lineCounts = Scanner.scanId(line);
             (counts._1 + lineCounts._1, counts._2 + lineCounts._2)
         }
     }
     println(counts);
+
+    // part 2
+    val part2Lines = Control.readTextFile("input_part2")
+    val offByOnePair = part2Lines
+        .combinations(2)
+        .find(combination =>
+            Part2.compareIds(combination.head, combination.last)
+        )
+    println(offByOnePair)
 }
